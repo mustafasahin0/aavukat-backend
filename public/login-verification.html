@@ -1,0 +1,170 @@
+<!doctype html>
+<html>
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Login Verification</title>
+      <style>
+         body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #fffaf0;
+            margin: 0;
+            padding: 0;
+         }
+         .wrapper {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+         }
+         .container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(232, 93, 58, 0.15);
+            padding: 40px;
+            margin-top: 20px;
+            border-top: 5px solid #e63946;
+         }
+         .logo {
+            text-align: center;
+            margin-bottom: 10px;
+         }
+         .logo-text {
+            font-size: 26px;
+            font-weight: bold;
+            color: #e63946;
+            letter-spacing: 1px;
+         }
+         .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eaeaea;
+            padding-bottom: 20px;
+         }
+         .header h2 {
+            color: #2d3748;
+            font-size: 24px;
+            margin: 0;
+         }
+         .content {
+            padding: 0 10px;
+         }
+         .greeting {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 17px;
+            margin-bottom: 20px;
+         }
+         .message {
+            margin-bottom: 25px;
+            color: #4a5568;
+            font-size: 16px;
+         }
+         .otp-container {
+            background-color: #fff5f5;
+            border: 1px solid #fad7d7;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: center;
+         }
+         .otp-code {
+            font-size: 32px;
+            font-weight: bold;
+            color: #e63946;
+            letter-spacing: 4px;
+            font-family: monospace;
+         }
+         .expiry-note {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #fff0e6;
+            border-left: 4px solid #f4a261;
+            color: #9c4221;
+            font-size: 14px;
+            border-radius: 4px;
+         }
+         .security-note {
+            margin-top: 20px;
+            color: #718096;
+            font-size: 14px;
+            line-height: 1.5;
+         }
+         .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eaeaea;
+            font-size: 13px;
+            color: #718096;
+         }
+         .social-links {
+            margin: 15px 0;
+            text-align: center;
+         }
+         .social-link {
+            display: inline-block;
+            margin: 0 10px;
+            color: #f4a261;
+            text-decoration: none;
+            font-weight: 500;
+         }
+         .social-link:hover {
+            color: #e63946;
+            text-decoration: underline;
+         }
+         @media only screen and (max-width: 480px) {
+            .container {
+               padding: 20px;
+            }
+            .otp-code {
+               font-size: 28px;
+            }
+         }
+      </style>
+   </head>
+   <body>
+      <div class="wrapper">
+         <div class="container">
+            <div class="logo">
+               <div class="logo-text">AAvukat</div>
+            </div>
+            <div class="header">
+               <h2>Security Verification Required</h2>
+            </div>
+            
+            <div class="content">
+               <p class="greeting">Dear {{name}},</p>
+               
+               <p class="message">
+                  A sign-in attempt to your AAvukat account has been detected and requires verification. 
+                  For your security, please use the verification code below to complete the sign-in process:
+               </p>
+               
+               <div class="otp-container">
+                  <div class="otp-code">{{otp}}</div>
+               </div>
+               
+               <div class="expiry-note">
+                  This verification code will expire in 10 minutes.
+               </div>
+               
+               <p class="security-note">
+                  <strong>Security Notice:</strong> If you did not attempt to sign in to your account, please ignore this email and consider changing your password immediately to secure your account.
+               </p>
+            </div>
+            
+            <div class="footer">
+               <p>This is an automated message, please do not reply to this email.</p>
+               <div class="social-links">
+                  <a href="#" class="social-link">Help Center</a>
+                  <a href="#" class="social-link">Terms of Service</a>
+                  <a href="#" class="social-link">Privacy Policy</a>
+               </div>
+               <p>&copy; {{year}} AAvukat. All rights reserved.</p>
+            </div>
+         </div>
+      </div>
+   </body>
+</html>

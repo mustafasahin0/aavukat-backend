@@ -1,0 +1,28 @@
+import ChatBotMessageRepository from "@/infrastructure/repositories/ChatBotMessageRepository";
+import NotificationRepository from "@/infrastructure/repositories/NotificationRepository";
+import VideoSectionRepository from "@/infrastructure/repositories/VideoSectionRepository";
+import AppointmentRepository from "@/infrastructure/repositories/AppointmentRepository";
+import ClientRepository from "@/infrastructure/repositories/ClientRepository";
+import PaymentRepository from "@/infrastructure/repositories/PaymentRepository";
+import MessageRepository from "@/infrastructure/repositories/MessageRepository";
+import LawyerRepository from "@/infrastructure/repositories/LawyerRepository";
+import SlotRepository from "@/infrastructure/repositories/SlotRepository";
+import ChatRepository from "@/infrastructure/repositories/ChatRepository";
+import OtpRepository from "@/infrastructure/repositories/OtpRepository";
+import LegalHistoryRepository from "@/infrastructure/repositories/LegalHistoryRepository";
+import AdminRepository from "@/infrastructure/repositories/AdminRepository";
+import { prisma } from "@/config/prisma";
+
+export const chatBotMessageRepository = new ChatBotMessageRepository();
+export const notificationRepository = new NotificationRepository();
+export const videoSectionRepository = new VideoSectionRepository();
+export const appointmentRepository = new AppointmentRepository();
+export const clientRepository = new ClientRepository();
+export const paymentRepository = new PaymentRepository();
+export const messageRepository = new MessageRepository();
+export const lawyerRepository = new LawyerRepository();
+export const legalHistoryRepository = new LegalHistoryRepository();
+export const slotRepository = new SlotRepository();
+export const chatRepository = new ChatRepository();
+export const otpRepository = new OtpRepository();
+export const adminRepository = new AdminRepository(prisma);

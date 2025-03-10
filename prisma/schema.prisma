@@ -1,0 +1,115 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  email         String    @unique
+  password      String
+  role          String
+  isVerified    Boolean   @default(false)
+  isBlocked     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  lawyer        Lawyer?
+  client        Client?
+  refreshTokens RefreshToken[]
+}
+
+model Lawyer {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String    @unique @db.ObjectId
+  user            User      @relation(fields: [userId], references: [id])
+  name            String
+  specialization  String
+  experience      Int
+  rating          Float     @default(0)
+  barNumber       String?   // Bar association registration number
+  jurisdictions  String[]  // Array of jurisdictions where lawyer can practice
+  languages       String[]  // Languages the lawyer can provide service in
+  education       String[]  // Array of educational qualifications
+  certifications  String[]  // Professional certifications
+  firmName        String?   // Law firm name if applicable
+  appointments    Appointment[]
+  availability    Availability[]
+  legalHistories  LegalHistory[]
+}
+
+model Client {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String    @unique @db.ObjectId
+  user            User      @relation(fields: [userId], references: [id])
+  name            String
+  dateOfBirth     DateTime?
+  address         String?
+  phone           String?
+  preferredLanguage String?
+  emergencyContact String?
+  companyName     String?   // For business clients
+  industry        String?   // For business clients
+  appointments    Appointment[]
+  legalHistories  LegalHistory[]
+}
+
+model Appointment {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  lawyerId    String    @db.ObjectId
+  lawyer      Lawyer    @relation(fields: [lawyerId], references: [id])
+  clientId    String    @db.ObjectId
+  client      Client    @relation(fields: [clientId], references: [id])
+  startTime   DateTime
+  endTime     DateTime
+  status      String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Availability {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  lawyerId    String    @db.ObjectId
+  lawyer      Lawyer    @relation(fields: [lawyerId], references: [id])
+  dayOfWeek   Int
+  startTime   String
+  endTime     String
+}
+
+model LegalHistory {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  lawyerId    String    @db.ObjectId
+  lawyer      Lawyer    @relation(fields: [lawyerId], references: [id])
+  clientId    String    @db.ObjectId
+  client      Client    @relation(fields: [clientId], references: [id])
+  title       String
+  caseType    String
+  description String
+  date        DateTime
+  status      String
+  jurisdiction String?   // Legal jurisdiction where the case falls under
+  caseNumber  String?   // Official case number if applicable
+  courtName   String?   // Name of the court if applicable
+  nextHearing DateTime? // Date of the next court hearing if applicable
+  documents   String[]  // Array of document references
+  notes      String?   // Additional case notes
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model RefreshToken {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  token     String   @unique
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}

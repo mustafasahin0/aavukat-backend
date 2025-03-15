@@ -12,4 +12,20 @@ export default class UnauthenticatedControllers {
          next(error);
       }
    }
+
+   async healthCheck(req: Request, res: Response, next: NextFunction) {
+      try {
+         // You can add more sophisticated checks here later if needed
+         const health = {
+            status: 'ok',
+            timestamp: new Date(),
+            environment: process.env.NODE_ENV || 'development',
+            uptime: process.uptime()
+         };
+         
+         res.status(StatusCode.OK).json(health);
+      } catch (error) {
+         next(error);
+      }
+   }
 }

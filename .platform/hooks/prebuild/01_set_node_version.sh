@@ -2,12 +2,21 @@
 # Log the beginning of the script
 echo "Setting up Node.js environment..."
 
-# Install Node.js 18.x directly using yum (more reliable in AWS environments)
-echo "Installing Node.js 18.x..."
-curl -sL https://rpm.nodesource.com/setup_18.x | sudo -E bash -
-sudo yum install -y nodejs
+# Check if we're running on Amazon Linux 2
+if [ -f /etc/system-release ]; then
+  echo "Detected Amazon Linux"
+  
+  # Use the Amazon Linux specific Node.js setup
+  if ! command -v node &> /dev/null; then
+    echo "Installing Node.js..."
+    curl --silent --location https://rpm.nodesource.com/setup_18.x | sudo bash -
+    sudo yum -y install nodejs
+  else
+    echo "Node.js is already installed"
+  fi
+fi
 
-# Verify installation
+# Print versions for debugging
 echo "Node.js version:"
 node -v
 echo "NPM version:"

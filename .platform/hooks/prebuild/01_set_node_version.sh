@@ -1,11 +1,16 @@
 #!/bin/bash
-# Install nvm (Node Version Manager)
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-# Load nvm
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-# Install and use Node.js 18
-nvm install 18
-nvm use 18
-# Show installed Node.js version
-node -v 
+# Log the beginning of the script
+echo "Setting up Node.js environment..."
+
+# Install Node.js 18.x directly using yum (more reliable in AWS environments)
+echo "Installing Node.js 18.x..."
+curl -sL https://rpm.nodesource.com/setup_18.x | sudo -E bash -
+sudo yum install -y nodejs
+
+# Verify installation
+echo "Node.js version:"
+node -v
+echo "NPM version:"
+npm -v
+
+echo "Node.js setup complete." 

@@ -40,13 +40,32 @@ export const connectDB = async () => {
     // Check if using DocumentDB (containing docdb in the URL)
     const isDocumentDb = connectionString.includes('docdb');
     
-    let connectionOptions: any = {};
-    
     if (isDocumentDb) {
       // For DocumentDB, we need to find the certificate
       const certPath = await findValidCertPath();
       
-      if (!certPath) {
+      if (certPath) {
+        // We found a valid certificate, use it for the connection
+        console.log(`Using certificate at: ${certPath}`);
+        
+        // Create a new connection string with the correct certificate path
+        // First, extract the base URL and parameters
+        const urlParts = connectionString.split('?');
+        const baseUrl = urlParts[0];
+        const paramsString = urlParts.length > 1 ? urlParts[1] : '';
+        
+        // Parse the parameters
+        const params = new URLSearchParams(paramsString);
+        
+        // Update the certificate path
+        params.set('tlsCAFile', certPath);
+        
+        // Rebuild the connection string
+        const updatedConnectionString = `${baseUrl}?${params.toString()}`;
+        console.log(`Using modified connection string with correct certificate path`);
+        
+        await connect(updatedConnectionString);
+      } else {
         console.error("ERROR: SSL certificate not found in any expected location!");
         console.error("Attempting to download certificate...");
         
@@ -75,11 +94,22 @@ export const connectDB = async () => {
         });
         
         console.log("Using downloaded certificate.");
+        
+        // Try connecting with the downloaded certificate
+        const urlParts = connectionString.split('?');
+        const baseUrl = urlParts[0];
+        const paramsString = urlParts.length > 1 ? urlParts[1] : '';
+        const params = new URLSearchParams(paramsString);
+        params.set('tlsCAFile', localCertPath);
+        const updatedConnectionString = `${baseUrl}?${params.toString()}`;
+        
+        await connect(updatedConnectionString);
       }
+    } else {
+      // Standard MongoDB connection
+      await connect(connectionString);
     }
-
-    // Connect to the database
-    await connect(connectionString);
+    
     console.log("MongoDB Connected");
   } catch (error) {
     console.log("Error in Connecting MongoDB ", error);

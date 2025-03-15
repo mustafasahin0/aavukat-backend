@@ -17,6 +17,13 @@ npm ci || npm install
 # Generate Prisma client with additional error handling
 echo "Generating Prisma client..."
 if [ -d "./prisma" ]; then
+  # Force reinstall prisma to ensure binaries are properly installed
+  echo "Reinstalling Prisma to ensure binaries are available..."
+  npm uninstall prisma
+  npm install prisma --save-dev
+  
+  # Generate the Prisma client
+  echo "Generating Prisma client..."
   npx prisma generate || echo "Warning: Prisma generation failed but continuing deployment"
 else
   echo "No Prisma directory found, skipping"

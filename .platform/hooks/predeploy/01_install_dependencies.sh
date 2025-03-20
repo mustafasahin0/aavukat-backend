@@ -4,8 +4,14 @@
 
 cd /var/app/staging
 
-echo "Installing Node.js dependencies..."
-npm ci || npm install
+# Install pnpm if not available
+if ! command -v pnpm &> /dev/null; then
+  echo "Installing pnpm..."
+  npm install -g pnpm
+fi
+
+echo "Installing Node.js dependencies with pnpm..."
+pnpm install
 
 echo "Generating Prisma client if needed..."
 if [ -f "./node_modules/.bin/prisma" ]; then
@@ -14,6 +20,6 @@ if [ -f "./node_modules/.bin/prisma" ]; then
 fi
 
 echo "Building application if needed..."
-npm run build || echo "Build script failed but continuing..."
+pnpm run build || echo "Build script failed but continuing..."
 
 echo "Dependencies installation complete!" 

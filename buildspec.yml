@@ -6,11 +6,12 @@ phases:
       nodejs: 18
     commands:
       - echo Installing dependencies...
-      - npm install
+      - npm install -g pnpm
+      - pnpm install
   build:
     commands:
       - echo Building application...
-      - npm run build
+      - pnpm run build
   post_build:
     commands:
       - echo Build completed on `date`

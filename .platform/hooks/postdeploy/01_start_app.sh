@@ -3,6 +3,11 @@
 # Check if app is running and restart if needed
 cd /var/app/current
 
+# Debug info
+echo "Current directory: $(pwd)"
+echo "Node version: $(node -v)"
+echo "NPM version: $(npm -v)"
+
 # Ensure environment variables
 if [ -f .env ]; then
   # Update PORT in .env if needed
@@ -15,26 +20,32 @@ else
   echo "PORT=8000" > .env
 fi
 
-# Install pnpm if not available
-if ! command -v pnpm &> /dev/null; then
-  echo "Installing pnpm..."
-  npm install -g pnpm
-fi
-
-# Install dependencies properly
-echo "Installing dependencies with pnpm..."
-pnpm install
-
-# Check if app is running
+# Stop any running application
 if pgrep -f "node dist/index.js" > /dev/null; then
-  echo "Restarting Node.js application..."
+  echo "Stopping existing Node.js application..."
   pkill -f "node dist/index.js" || true
   sleep 2
 fi
 
-# Start the application
+# Direct fix - Install missing modules directly with npm
+echo "Direct fix - Installing missing dependencies..."
+cd /var/app/current
+npm install cors express body-parser dotenv bcryptjs jsonwebtoken --save
+
+# Make sure dependencies are properly linked
+echo "Checking node_modules structure..."
+if [ ! -d "node_modules/cors" ]; then
+  echo "CORS module not found - installing it directly..."
+  npm install cors --save
+fi
+
+# Fix permissions if needed
+echo "Ensuring correct permissions..."
+chmod -R 755 node_modules/
+
+# Start the application with npm (more reliable)
 echo "Starting Node.js application on port 8000..."
-PORT=8000 pnpm start > /var/log/nodejs_app.log 2>&1 &
+PORT=8000 node dist/index.js > /var/log/nodejs_app.log 2>&1 &
 echo "Application started!"
 
 # Verify the application is running

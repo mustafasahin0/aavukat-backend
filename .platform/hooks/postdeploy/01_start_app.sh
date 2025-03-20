@@ -15,6 +15,10 @@ else
   echo "PORT=8000" > .env
 fi
 
+# Install dependencies properly
+echo "Installing dependencies..."
+npm ci || npm install
+
 # Check if app is running
 if pgrep -f "node dist/index.js" > /dev/null; then
   echo "Restarting Node.js application..."
@@ -33,4 +37,6 @@ if pgrep -f "node dist/index.js" > /dev/null; then
   echo "Node.js application is running"
 else
   echo "WARNING: Failed to start Node.js application"
+  echo "Checking application logs for errors..."
+  tail -n 20 /var/log/nodejs_app.log
 fi 

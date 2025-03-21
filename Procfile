@@ -1,1 +1,1 @@
-web: npm start || (echo "Error starting application, attempting to recover" && sleep 10 && npm start) 
+web: node dist/index.js

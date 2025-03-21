@@ -19,9 +19,10 @@ phases:
 artifacts:
   files:
     - package.json
-    - pnpm-lock.yaml       # <-- Important!
+    - pnpm-lock.yaml
     - .ebextensions/**/*
     - dist/**/*
     - node_modules/**/*
     - prisma/**/*
+    - .npmrc
   discard-paths: no

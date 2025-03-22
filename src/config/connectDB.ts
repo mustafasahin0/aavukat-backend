@@ -28,7 +28,21 @@ const findValidCertPath = async (): Promise<string | null> => {
 export const connectDB = async () => {
   try {
     // Choose DATABASE_URL if available, otherwise fall back to MONGODB_URL, or use a default local connection
-    const connectionString = DATABASE_URL || MONGODB_URL || "mongodb://localhost:27017/default";
+    let connectionString = DATABASE_URL || MONGODB_URL || "mongodb://localhost:27017/default";
+    
+    // URL encode username and password in connection string
+    if (connectionString.includes('@')) {
+      const urlParts = connectionString.split('//');
+      const authAndRest = urlParts[1].split('@');
+      const credentials = authAndRest[0].split(':');
+      
+      // URL encode username and password
+      const encodedUsername = encodeURIComponent(credentials[0]);
+      const encodedPassword = encodeURIComponent(credentials[1]);
+      
+      // Reconstruct the connection string with encoded credentials
+      connectionString = `${urlParts[0]}//${encodedUsername}:${encodedPassword}@${authAndRest[1]}`;
+    }
     
     // Log connection string with masked credentials
     const maskedUrl = connectionString.replace(

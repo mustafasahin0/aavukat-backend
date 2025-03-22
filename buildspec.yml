@@ -23,6 +23,7 @@ artifacts:
     - dist/**/*
     - node_modules/**/*
     - prisma/**/*
+    - public/**/*
     - .npmrc
     - Procfile  
   discard-paths: no

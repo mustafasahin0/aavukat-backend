@@ -32,16 +32,23 @@ export const connectDB = async () => {
     
     // URL encode username and password in connection string
     if (connectionString.includes('@')) {
-      const urlParts = connectionString.split('//');
-      const authAndRest = urlParts[1].split('@');
-      const credentials = authAndRest[0].split(':');
+      // More careful parsing to handle special characters in credentials
+      const urlObj = new URL(connectionString);
+      const userAndPass = urlObj.username && urlObj.password ? 
+        { username: urlObj.username, password: urlObj.password } : 
+        extractCredentials(connectionString);
       
       // URL encode username and password
-      const encodedUsername = encodeURIComponent(credentials[0]);
-      const encodedPassword = encodeURIComponent(credentials[1]);
+      const encodedUsername = encodeURIComponent(userAndPass.username);
+      const encodedPassword = encodeURIComponent(userAndPass.password);
       
-      // Reconstruct the connection string with encoded credentials
-      connectionString = `${urlParts[0]}//${encodedUsername}:${encodedPassword}@${authAndRest[1]}`;
+      // Reconstruct the connection string with properly encoded credentials
+      const protocol = urlObj.protocol;
+      const host = urlObj.host;
+      const pathname = urlObj.pathname;
+      const search = urlObj.search;
+      
+      connectionString = `${protocol}//${encodedUsername}:${encodedPassword}@${host}${pathname}${search}`;
       
       // For DocumentDB, make sure we're using the admin authentication database
       if (connectionString.includes('docdb') && !connectionString.includes('authSource=')) {
@@ -136,3 +143,18 @@ export const connectDB = async () => {
     process.exit(1);
   }
 };
+
+// Helper function to extract credentials from a MongoDB connection string
+function extractCredentials(connectionString: string) {
+  const atIndex = connectionString.indexOf('@');
+  if (atIndex === -1) return { username: "", password: "" };
+  
+  const authPart = connectionString.substring(connectionString.indexOf('//') + 2, atIndex);
+  const colonIndex = authPart.indexOf(':');
+  if (colonIndex === -1) return { username: authPart, password: "" };
+  
+  return {
+    username: authPart.substring(0, colonIndex),
+    password: authPart.substring(colonIndex + 1)
+  };
+}

@@ -33,7 +33,7 @@ export default class NodeMailerService implements IEmailService {
 
          console.log("Creating transporter with AWS SES...");
          const transporter = nodemailer.createTransport({
-            host: "email-smtp.us-east-2.amazonaws.com",
+            host: "email-smtp.us-east-1.amazonaws.com",
             port: 465,
             secure: true,
             auth: {

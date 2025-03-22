@@ -32,23 +32,18 @@ export const connectDB = async () => {
     
     // URL encode username and password in connection string
     if (connectionString.includes('@')) {
-      // More careful parsing to handle special characters in credentials
-      const urlObj = new URL(connectionString);
-      const userAndPass = urlObj.username && urlObj.password ? 
-        { username: urlObj.username, password: urlObj.password } : 
-        extractCredentials(connectionString);
+      // Extract credentials using our custom function - don't use URL constructor
+      const credentials = extractCredentials(connectionString);
       
       // URL encode username and password
-      const encodedUsername = encodeURIComponent(userAndPass.username);
-      const encodedPassword = encodeURIComponent(userAndPass.password);
+      const encodedUsername = encodeURIComponent(credentials.username);
+      const encodedPassword = encodeURIComponent(credentials.password);
       
       // Reconstruct the connection string with properly encoded credentials
-      const protocol = urlObj.protocol;
-      const host = urlObj.host;
-      const pathname = urlObj.pathname;
-      const search = urlObj.search;
+      const beforeAuth = connectionString.substring(0, connectionString.indexOf('//') + 2);
+      const afterAuth = connectionString.substring(connectionString.indexOf('@'));
       
-      connectionString = `${protocol}//${encodedUsername}:${encodedPassword}@${host}${pathname}${search}`;
+      connectionString = `${beforeAuth}${encodedUsername}:${encodedPassword}${afterAuth}`;
       
       // For DocumentDB, make sure we're using the admin authentication database
       if (connectionString.includes('docdb') && !connectionString.includes('authSource=')) {

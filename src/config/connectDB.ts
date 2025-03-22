@@ -42,6 +42,11 @@ export const connectDB = async () => {
       
       // Reconstruct the connection string with encoded credentials
       connectionString = `${urlParts[0]}//${encodedUsername}:${encodedPassword}@${authAndRest[1]}`;
+      
+      // For DocumentDB, make sure we're using the admin authentication database
+      if (connectionString.includes('docdb') && !connectionString.includes('authSource=')) {
+        connectionString += connectionString.includes('?') ? '&authSource=admin' : '?authSource=admin';
+      }
     }
     
     // Log connection string with masked credentials

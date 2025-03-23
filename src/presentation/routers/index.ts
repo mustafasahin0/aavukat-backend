@@ -15,6 +15,7 @@ import slotRoutes from "./slots/SlotsRoutes";
 const app = Router();
 const { unauthenticatedController } = createControllers;
 
+app.get("/health", unauthenticatedController.healthCheck.bind(unauthenticatedController));
 app.get("/lawyers", unauthenticatedController.getLawyers.bind(unauthenticatedController));
 app.use("/lawyer/auth", lawyerAuthentication);
 app.use("/lawyer", authorizeLawyer.exec, lawyerProtectedRoutes);

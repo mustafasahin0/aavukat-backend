@@ -1,0 +1,29 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 22
+    commands:
+      - echo Installing dependencies...
+      - npm install
+  build:
+    commands:
+      - echo Building application...
+      - npm run build
+  post_build:
+    commands:
+      - echo Build completed on `date`
+
+artifacts:
+  files:
+    - package.json
+    - package-lock.json
+    - .ebextensions/**/*
+    - dist/**/*
+    - node_modules/**/*
+    - prisma/**/*
+    - public/**/*
+    - .npmrc
+    - Procfile  
+  discard-paths: no

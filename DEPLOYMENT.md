@@ -70,3 +70,20 @@ Once your environment is created:
 - Monitor your deployment in the CodePipeline console
 - Check Elastic Beanstalk logs if there are issues
 - For WebSocket issues, check the Nginx configuration 
+
+
+# Notes for Creating QA Env
+
+- Create Document DB cluster and change SG to DB SG
+- Create Elastic Bean Stack with Env Configs with Sample App
+   - App server Sg
+   - Load Balancer: Select Public subnets for Load Balancer (Later go to load balancer and change SG to Load Balancer SG)
+   - Select 443 Listener
+   - After deployment go to route 53 and configure 443 Listener certificate
+   
+- Amplify:
+   - Create Env
+   - Later on configure Domain
+
+- AWS Ses
+   - no-reply@aavukat.com

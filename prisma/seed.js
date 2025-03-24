@@ -2,6 +2,8 @@
 require('dotenv').config();
 const bcrypt = require('bcryptjs');
 const { MongoClient } = require('mongodb');
+const fs = require('fs');
+const path = require('path');
 
 // Ensure URI is properly handled
 let uri = process.env.DATABASE_URL;
@@ -45,21 +47,84 @@ function encodeMongoURI(uri) {
   }
 }
 
+// Handle the TLS certificate for DocumentDB
+function prepareConnectionOptions(uri) {
+  // Check if this is a TLS connection with certificate
+  if (uri.includes('tlsCAFile=')) {
+    // Extract the certificate filename
+    const match = uri.match(/tlsCAFile=([^&]+)/);
+    if (match && match[1]) {
+      const certFile = match[1];
+      
+      // Check if the certificate file exists
+      try {
+        // Check both relative path and absolute path
+        let certPath = certFile;
+        if (!path.isAbsolute(certFile)) {
+          certPath = path.join(process.cwd(), certFile);
+        }
+
+        if (fs.existsSync(certPath)) {
+          console.log(`Found TLS certificate at ${certPath}`);
+        } else {
+          console.warn(`Warning: TLS certificate file not found at ${certPath}`);
+          console.warn('Checking if we can download it...');
+          
+          // If using Amazon DocumentDB and the certificate is the standard global bundle
+          if (certFile === 'global-bundle.pem' && !fs.existsSync('global-bundle.pem')) {
+            console.warn('Certificate not found. Please make sure to download the Amazon DocumentDB certificate.');
+          }
+        }
+      } catch (error) {
+        console.error('Error checking for TLS certificate:', error);
+      }
+    }
+  }
+}
+
 // Encode the URI properly
 uri = encodeMongoURI(uri);
 console.log('Using MongoDB connection string (sensitive parts redacted):', 
   uri.replace(/mongodb:\/\/([^:]+):([^@]+)@/, 'mongodb://$1:****@'));
 
+// Check for TLS certificate
+prepareConnectionOptions(uri);
+
+// Configure MongoDB client with appropriate options
+const mongoOptions = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  connectTimeoutMS: 30000, // 30 seconds
+  socketTimeoutMS: 30000   // 30 seconds
+};
+
 // Create MongoDB client with the connection string
-const client = new MongoClient(uri);
+const client = new MongoClient(uri, mongoOptions);
 
 async function main() {
   try {
     console.log('Starting to seed lawyers...');
     
-    // Connect to MongoDB
-    await client.connect();
-    console.log('Connected to MongoDB');
+    // Connect to MongoDB with retry logic
+    let connected = false;
+    let retries = 3;
+    
+    while (!connected && retries > 0) {
+      try {
+        await client.connect();
+        connected = true;
+        console.log('Connected to MongoDB');
+      } catch (error) {
+        retries--;
+        console.error(`Failed to connect to MongoDB. ${retries} retries left.`, error);
+        if (retries > 0) {
+          console.log('Retrying connection in 5 seconds...');
+          await new Promise(resolve => setTimeout(resolve, 5000));
+        } else {
+          throw error;
+        }
+      }
+    }
     
     const db = client.db(); // Uses the database from the connection string
 

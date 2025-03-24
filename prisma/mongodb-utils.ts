@@ -7,7 +7,7 @@
  * @param {string} uri - The MongoDB connection string
  * @returns {string} - Properly encoded connection string
  */
-function encodeMongoURI(uri) {
+export function encodeMongoURI(uri: string): string {
   try {
     if (!uri) return uri;
     
@@ -41,6 +41,4 @@ function encodeMongoURI(uri) {
     console.warn('Error encoding MongoDB URI, using original:', e);
     return uri;
   }
-}
-
-module.exports = { encodeMongoURI }; 
+} 

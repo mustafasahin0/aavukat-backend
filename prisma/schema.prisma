@@ -41,6 +41,11 @@ model Lawyer {
   education       String[]  // Array of educational qualifications
   certifications  String[]  // Professional certifications
   firmName        String?   // Law firm name if applicable
+  phone           String?   // Contact number
+  profileImage    String?   // Profile image URL
+  instagramUrl    String?   // Instagram profile URL
+  twitterUrl      String?   // Twitter/X profile URL
+  linkedinUrl     String?   // LinkedIn profile URL
   appointments    Appointment[]
   availability    Availability[]
   legalHistories  LegalHistory[]

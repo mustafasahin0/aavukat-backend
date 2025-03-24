@@ -16,4 +16,14 @@ export default interface ILawyer {
    isVerified?: boolean;
    specialization?: string;
    experience?: number;
+   barNumber?: string;
+   jurisdictions?: string[];
+   languages?: string[];
+   education?: string[];
+   certifications?: string[];
+   firmName?: string;
+   rating?: number;
+   instagramUrl?: string;
+   twitterUrl?: string;
+   linkedinUrl?: string;
 }

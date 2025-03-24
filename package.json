@@ -8,6 +8,7 @@
      "start": "node dist/index.js",
      "serve": "nodemon dist/index.js",
      "dev": "nodemon",
+     "seed-lawyers": "node scripts/seed-social-media-lawyers.js",
      "test": "echo \"No tests specified\" && exit 0",
      "format": "prettier --write .",
      "lint": "prettier --check .",

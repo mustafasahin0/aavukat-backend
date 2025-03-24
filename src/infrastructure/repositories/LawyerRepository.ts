@@ -57,16 +57,36 @@ export default class LawyerRepository implements ILawyerRepository {
       isVerified?: boolean,
       isBlocked?: boolean
    ): Promise<PaginatedResult<ILawyer>> {
+      const whereClause: any = {};
+      
+      // Add filter conditions to the query when they are specified
+      if (isVerified !== undefined) {
+         whereClause.user = {
+            ...whereClause.user,
+            isVerified
+         };
+      }
+      
+      if (isBlocked !== undefined) {
+         whereClause.user = {
+            ...whereClause.user,
+            isBlocked
+         };
+      }
+      
       const [results, totalItems] = await Promise.all([
          prisma.lawyer.findMany({
             skip: offset,
             take: limit,
+            where: whereClause,
             orderBy: { user: { createdAt: "desc" } },
             include: {
                user: true,
             },
          }),
-         prisma.lawyer.count(),
+         prisma.lawyer.count({
+            where: whereClause
+         }),
       ]);
 
       const items = results.map((result: any) => this.mapToILawyer(result));
@@ -163,6 +183,18 @@ export default class LawyerRepository implements ILawyerRepository {
          isBlocked: lawyer.user?.isBlocked || false,
          createdAt: lawyer.user?.createdAt,
          updatedAt: lawyer.user?.updatedAt,
+         phone: lawyer.phone,
+         profileImage: lawyer.profileImage,
+         barNumber: lawyer.barNumber,
+         jurisdictions: lawyer.jurisdictions,
+         languages: lawyer.languages,
+         education: lawyer.education,
+         certifications: lawyer.certifications,
+         firmName: lawyer.firmName,
+         rating: lawyer.rating,
+         instagramUrl: lawyer.instagramUrl,
+         twitterUrl: lawyer.twitterUrl,
+         linkedinUrl: lawyer.linkedinUrl
       };
    }
 }

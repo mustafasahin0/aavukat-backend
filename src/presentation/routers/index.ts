@@ -17,6 +17,7 @@ const { unauthenticatedController } = createControllers;
 
 app.get("/health", unauthenticatedController.healthCheck.bind(unauthenticatedController));
 app.get("/lawyers", unauthenticatedController.getLawyers.bind(unauthenticatedController));
+app.get("/lawyers/:id", unauthenticatedController.getLawyerById.bind(unauthenticatedController));
 app.use("/lawyer/auth", lawyerAuthentication);
 app.use("/lawyer", authorizeLawyer.exec, lawyerProtectedRoutes);
 app.use("/client/auth", clientAuthentication);

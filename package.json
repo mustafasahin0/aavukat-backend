@@ -14,7 +14,8 @@
       "lint": "prettier --check .",
       "clean": "rimraf dist",
       "find-deadcode": "npx ts-prune && npx depcheck --ignores=tsconfig-paths",
-      "postinstall": "npx prisma generate && npx prisma db seed && npm run build"
+      "seed-test-data": "npx prisma db seed",
+      "postinstall": "npx prisma generate && npm run build"
    },
    "keywords": [],
    "license": "ISC",

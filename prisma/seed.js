@@ -3,7 +3,54 @@ require('dotenv').config();
 const bcrypt = require('bcryptjs');
 const { MongoClient } = require('mongodb');
 
-const uri = process.env.DATABASE_URL;
+// Ensure URI is properly handled
+let uri = process.env.DATABASE_URL;
+if (!uri) {
+  console.error('DATABASE_URL environment variable is not set');
+  process.exit(1);
+}
+
+// Function to properly encode MongoDB connection string
+function encodeMongoURI(uri) {
+  try {
+    // Only process mongodb:// URIs
+    if (!uri.startsWith('mongodb://')) {
+      return uri; // Return as is for mongodb+srv:// or other formats
+    }
+    
+    // Split the URI into components
+    const parts = uri.split('@');
+    if (parts.length < 2) return uri; // Not a typical auth URI
+    
+    const authPart = parts[0];
+    const restPart = parts.slice(1).join('@');
+    
+    // Split auth part to get username and password
+    const authComponents = authPart.split(':');
+    if (authComponents.length < 3) return uri; // Not a typical username:password format
+    
+    const protocol = authComponents[0];
+    const username = authComponents[1];
+    // Password is everything between the first colon after username and the @
+    const password = authComponents.slice(2).join(':');
+    
+    // Encode the password properly
+    const encodedPassword = encodeURIComponent(password);
+    
+    // Reconstruct the URI
+    return `${protocol}:${username}:${encodedPassword}@${restPart}`;
+  } catch (e) {
+    console.warn('Error encoding MongoDB URI, using original:', e);
+    return uri;
+  }
+}
+
+// Encode the URI properly
+uri = encodeMongoURI(uri);
+console.log('Using MongoDB connection string (sensitive parts redacted):', 
+  uri.replace(/mongodb:\/\/([^:]+):([^@]+)@/, 'mongodb://$1:****@'));
+
+// Create MongoDB client with the connection string
 const client = new MongoClient(uri);
 
 async function main() {

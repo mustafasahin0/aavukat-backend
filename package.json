@@ -15,7 +15,8 @@
       "clean": "rimraf dist",
       "find-deadcode": "npx ts-prune && npx depcheck --ignores=tsconfig-paths",
       "seed-test-data": "npx prisma db seed",
-      "postinstall": "npx prisma generate && npm run build"
+      "postinstall": "npx prisma generate && npm run build",
+      "test-docdb": "node scripts/test-docdb-connection.js"
    },
    "keywords": [],
    "license": "ISC",

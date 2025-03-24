@@ -25,5 +25,6 @@ artifacts:
     - prisma/**/*
     - public/**/*
     - .npmrc
-    - Procfile  
+    - Procfile
+    - .platform/**/*
   discard-paths: no

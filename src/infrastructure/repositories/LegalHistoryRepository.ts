@@ -1,7 +1,7 @@
 import { PaginatedResult } from "@/types";
 import ILegalHistory from "@/domain/entities/ILegalHistory";
 import ILegalHistoryRepository from "@/domain/interface/repositories/ILegalHistoryRepository";
-import prisma from "@/infrastructure/config/prisma";
+import { prisma } from "@/config/prisma";
 
 export default class LegalHistoryRepository implements ILegalHistoryRepository {
    async findById(id: string): Promise<ILegalHistory | null> {

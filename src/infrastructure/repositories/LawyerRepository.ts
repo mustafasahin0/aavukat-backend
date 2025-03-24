@@ -1,7 +1,7 @@
 import { PaginatedResult } from "@/types";
 import ILawyer from "@/domain/entities/ILawyer";
 import ILawyerRepository from "@/domain/interface/repositories/ILawyerRepository";
-import prisma from "@/infrastructure/config/prisma";
+import { prisma } from "@/config/prisma";
 
 export default class LawyerRepository implements ILawyerRepository {
    async findByEmail(email: string): Promise<ILawyer | null> {

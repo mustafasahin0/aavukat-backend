@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const { MongoClient } = require('mongodb');
 const fs = require('fs');
 const path = require('path');
+const { encodeMongoURI } = require('./mongodb-utils');
 
 // Ensure URI is properly handled
 let uri = process.env.DATABASE_URL;
@@ -12,40 +13,10 @@ if (!uri) {
   process.exit(1);
 }
 
-// Function to properly encode MongoDB connection string
-function encodeMongoURI(uri) {
-  try {
-    // Only process mongodb:// URIs
-    if (!uri.startsWith('mongodb://')) {
-      return uri; // Return as is for mongodb+srv:// or other formats
-    }
-    
-    // Split the URI into components
-    const parts = uri.split('@');
-    if (parts.length < 2) return uri; // Not a typical auth URI
-    
-    const authPart = parts[0];
-    const restPart = parts.slice(1).join('@');
-    
-    // Split auth part to get username and password
-    const authComponents = authPart.split(':');
-    if (authComponents.length < 3) return uri; // Not a typical username:password format
-    
-    const protocol = authComponents[0];
-    const username = authComponents[1];
-    // Password is everything between the first colon after username and the @
-    const password = authComponents.slice(2).join(':');
-    
-    // Encode the password properly
-    const encodedPassword = encodeURIComponent(password);
-    
-    // Reconstruct the URI
-    return `${protocol}:${username}:${encodedPassword}@${restPart}`;
-  } catch (e) {
-    console.warn('Error encoding MongoDB URI, using original:', e);
-    return uri;
-  }
-}
+// Encode the URI properly using the shared utility
+uri = encodeMongoURI(uri);
+console.log('Using MongoDB connection string (sensitive parts redacted):', 
+  uri.replace(/mongodb:\/\/([^:]+):([^@]+)@/, 'mongodb://$1:****@'));
 
 // Handle the TLS certificate for DocumentDB
 function prepareConnectionOptions(uri) {
@@ -81,11 +52,6 @@ function prepareConnectionOptions(uri) {
     }
   }
 }
-
-// Encode the URI properly
-uri = encodeMongoURI(uri);
-console.log('Using MongoDB connection string (sensitive parts redacted):', 
-  uri.replace(/mongodb:\/\/([^:]+):([^@]+)@/, 'mongodb://$1:****@'));
 
 // Check for TLS certificate
 prepareConnectionOptions(uri);

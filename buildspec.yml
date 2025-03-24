@@ -26,6 +26,4 @@ artifacts:
     - public/**/*
     - .npmrc
     - Procfile
-    - .platform/**/*
-    - scripts/**/*
   discard-paths: no

@@ -64,6 +64,40 @@ function findDocumentDBCertificate(): string | null {
   return null;
 }
 
+// Function to download the certificate if not found
+async function downloadCertificate(): Promise<string | null> {
+  console.log("Attempting to download certificate...");
+  const https = require('https');
+  const certUrl = 'https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem';
+  const localCertPath = path.resolve(process.cwd(), 'global-bundle.pem'); // Use absolute path
+  
+  try {
+    await new Promise<void>((resolve, reject) => {
+      https.get(certUrl, (response: any) => {
+        if (response.statusCode !== 200) {
+          reject(new Error(`Failed to download certificate: ${response.statusCode}`));
+          return;
+        }
+        
+        const file = fs.createWriteStream(localCertPath);
+        response.pipe(file);
+        file.on('finish', () => {
+          console.log(`Certificate downloaded to ${localCertPath}`);
+          resolve();
+        });
+        file.on('error', (err: any) => {
+          reject(err);
+        });
+      }).on('error', reject);
+    });
+    
+    return localCertPath;
+  } catch (error) {
+    console.error("Failed to download certificate:", error);
+    return null;
+  }
+}
+
 // Ensure properly encoded MongoDB connection string with correct DocumentDB parameters
 if (process.env.DATABASE_URL) {
   // First encode the URI
@@ -75,32 +109,52 @@ if (process.env.DATABASE_URL) {
       connectionString.includes('rds.amazonaws.com')) {
     
     // Find the certificate file
-    const certPath = findDocumentDBCertificate();
+    let certPath = findDocumentDBCertificate();
     
-    if (certPath) {
-      // Parse the existing URL
-      const [baseUrl, params = ''] = connectionString.split('?');
-      const searchParams = new URLSearchParams(params);
+    // If certificate isn't found, try to download it
+    if (!certPath) {
+      console.error('ERROR: DocumentDB certificate not found, attempting to download...');
       
-      // Set required DocumentDB connection parameters
-      searchParams.set('tls', 'true');
-      searchParams.set('tlsCAFile', certPath);
-      searchParams.set('retryWrites', 'false'); // DocumentDB doesn't support retryWrites
-      
-      if (!searchParams.has('authSource')) {
-        searchParams.set('authSource', 'admin');
-      }
-      
-      // Rebuild the connection string
-      connectionString = `${baseUrl}?${searchParams.toString()}`;
-      console.log('DocumentDB connection configured with SSL certificate');
+      // Use IIFE to handle the async operation
+      (async () => {
+        try {
+          const downloadedPath = await downloadCertificate();
+          if (downloadedPath) {
+            updateConnectionString(connectionString, downloadedPath);
+          } else {
+            console.error('ERROR: Failed to download DocumentDB certificate');
+          }
+        } catch (err) {
+          console.error('ERROR: Failed to download DocumentDB certificate:', err);
+        }
+      })();
     } else {
-      console.error('ERROR: DocumentDB certificate not found, connection may fail!');
+      updateConnectionString(connectionString, certPath);
     }
   }
+}
+
+// Function to update the connection string with the certificate path
+function updateConnectionString(connectionString: string, certPath: string) {
+  // Parse the existing URL
+  const [baseUrl, params = ''] = connectionString.split('?');
+  const searchParams = new URLSearchParams(params);
+  
+  // Set required DocumentDB connection parameters
+  searchParams.set('tls', 'true');
+  searchParams.set('tlsCAFile', certPath);
+  searchParams.set('retryWrites', 'false'); // DocumentDB doesn't support retryWrites
+  
+  if (!searchParams.has('authSource')) {
+    searchParams.set('authSource', 'admin');
+  }
+  
+  // Rebuild the connection string
+  const updatedConnectionString = `${baseUrl}?${searchParams.toString()}`;
+  console.log('DocumentDB connection configured with SSL certificate');
   
   // Update the environment variable with the modified connection string
-  process.env.DATABASE_URL = connectionString;
+  process.env.DATABASE_URL = updatedConnectionString;
 }
 
 // Create a singleton Prisma client instance for the entire application
